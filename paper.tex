@@ -43,8 +43,8 @@
 \maketitle
 
 \begin{abstract}
-    I provide a simple condition on a geometric theory \(\T\),
-    which suffices to interpret the bunched type theory \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) of \cite{schopp} into the classifying topos \(\Set[\T]\).
+    In their PhD thesis, Sch\"opp introduces a type theory designed to capture the monoidal structure in the Schanuel topos.
+    I provide a simple condition that can be used to verify whether the type theory interprets into a classifying topos of your choice.
 \end{abstract}
 
 \section{Intro}
@@ -160,29 +160,21 @@ that for all \(x : R\), the subset \(\{a : R \mid ax = xa\}\) is a local ring.
 
 \section{Proof of Main Theorem}
 
-To prove the main theorem, begin by recalling some results from \cite{schopp}.
-
-\begin{lemma}
-    The type theory \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) can be modeled in any \\
-    \((*, 1, \Sigma, \Pi, \Pi^*)\)-type-category.
-\end{lemma}
-
-\begin{proof}
-    \cite{schopp}, chapter 6.
-\end{proof}
+To prove the main theorem, we begin by recalling a result from \cite{schopp}.
 
 \begin{lemma}
     Let \(\B\) be a topos equipped with a strict affine symmetric monoidal closed structure \((*,\wand)\),
     such that \(- * A\) preserves pullbacks for all \(A\).
     Further suppose we have a canonical choice of pullback for every span in \(\B\).
-    Then the family fibration over \(\B\) is a \((*, 1, \Sigma, \Pi, \Pi^*)\)-type-category.
+    Then the type theory \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) interprets into \(\B\).
 \end{lemma}
 
 \begin{proof}
-    \cite{schopp}, section 3.5. Since we are in a topos, the condition that the monomorphism \(A * B \hookrightarrow A \times B\) is strong is trivial.
+    Chapter 6 of \cite{schopp} shows that we can interpret the type theory in any ``\((*, 1, \Sigma, \Pi, \Pi^*)\)-type-category''.
+    Section 3.5 tells us that \(\B\) is such a category.
 \end{proof}
 
-Next, specialize to sheaf toposes.
+Next, we specialize to sheaf toposes.
 
 \begin{lemma} \label{sh}
     Let \((C,J)\) be a (small) site, such that \(C\) is finitely complete,
@@ -216,7 +208,7 @@ Next, specialize to sheaf toposes.
     Since that canonical map is mono, this is too.
 \end{proof}
 
-Finally, set the site to a syntactic site, to understand classifying toposes.
+Finally, we set the site to a syntactic site, to understand classifying toposes.
 
 \begin{lemma}
     Let \(\T\) be a geometric theory, satisfying the conditions of the main theorem.
@@ -239,9 +231,9 @@ Finally, set the site to a syntactic site, to understand classifying toposes.
 
     With that out of the way, let's begin the proof.
 
-    \pagebreak
+    \vspace{1em}
 
-    The syntactic category is guaranteed to be finitely complete, with a canonical construction for pullbacks.
+    \noindent The syntactic category is guaranteed to be finitely complete, with a canonical construction for pullbacks.
     Specifically, the empty context is terminal,
     and the pullback of the span \(\Gamma \xrightarrow{f} \Xi \xleftarrow{g} \Delta\) is the context \((\gamma : \Gamma, \delta : \Delta, f\gamma = g\delta)\).
 
