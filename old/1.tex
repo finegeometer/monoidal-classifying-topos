@@ -1,0 +1,505 @@
+% % References:
+% % schopp: https://ulrichschoepp.de/Docs/th.pdf
+% % biering: https://ncatlab.org/nlab/files/Biering-BunchedLogic.pdf
+% % blechschmidt: https://rawgit.com/iblech/internal-methods/master/paper-qcoh.pdf
+
+\documentclass{article}
+
+% https://ncatlab.org/nlab/show/Yoneda+embedding#ReferencesNotation
+\usepackage[utf8]{inputenc}
+\DeclareFontFamily{U}{min}{}
+\DeclareFontShape{U}{min}{m}{n}{<-> udmj30}{}
+\newcommand\yo{\!\text{\usefont{U}{min}{m}{n}\symbol{'207}}\!}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathpartir}
+\usepackage{quiver}
+
+\usepackage{todonotes}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand*{\Set}{\mathbf{Set}}
+\newcommand*{\Ring}{\mathbf{Ring}}
+\newcommand*{\CRing}{\mathbf{CRing}}
+\newcommand*{\Graph}{\mathbf{Graph}}
+\newcommand*{\Sh}{\mathrm{Sh}}
+\newcommand*{\Psh}{\mathrm{Psh}}
+\newcommand*{\T}{\mathbb{T}}
+\newcommand*{\B}{\mathbb{B}}
+\newcommand*{\Z}{\mathbb{Z}}
+\newcommand*{\C}{\mathcal{C}}
+
+% https://tex.stackexchange.com/a/223246
+\newcommand*{\wand}{\mathbin{-\mkern-6mu*}}
+
+\title{Instantiating Bunched Type Theory for Monoidal Classifying Toposes}
+\author{}
+
+\begin{document}
+\maketitle
+
+
+\begin{abstract}
+    I provide a simple condition for the classifying topos of a theory
+    to be interpretable in the bunched type theory of \cite{schopp}.
+    This provides a natural way for the internal logic to work with a monoidal structure on the topos.
+    Examples include the Schanuel topos, which was explored extensively in \cite{schopp},
+    and the classifying topos of noncommutative rings, which yields some sort of noncommutative synthetic differential geometry.
+\end{abstract}
+
+\listoftodos
+\tableofcontents
+
+\section{Introduction}
+
+Every topos comes with an associated \emph{internal language}.
+Each is built on intuitionistic logic, yet each has its own nature.
+These logics can be studied for their own sake (e.g. \cite{sdg}),
+or to learn more about the toposes they're built from (e.g. \cite{blechschmidt-thesis}).
+
+Sometimes, the topos we're interested has an important monoidal product, distinct from both the product and coproduct.
+So we would like the internal logic to likewise support this monoidal product.
+While we could simply add axioms to the logic, saying this monoidal structure exists,
+it's much more natural to move to a logical system that has the monoidal structure built in.
+Such a thing is called \emph{bunched logic}.
+
+In particular, \cite{schopp} introduces a bunched dependent type theory, which has the primitives we need.
+But \cite{schopp} only applies their type theory to one particular case: the Schanuel topos.
+If we want to apply it more generally, we need to prove a number of properties of our topos.
+
+I streamline this process. Specializing to classifying toposes,
+this paper provides an easy-to-check condition on a theory \(\T\)
+that suffices to interpret \cite{schopp}'s type theory
+in the classifying topos \(\Set[\T]\).
+
+\section{Main Result}
+
+\subsection{Setup}
+
+Let \(\T\) be a geometric theory.
+
+Suppose that for each pair \(A,B\) of sorts of \(\T\),
+we have a relation \(\sim : A \times B \to \mathbf{Prop}\), geometrically defined in terms of \(\T\)'s signature.
+For instance, if \(\T\) is the theory of rings, then \(\sim : R \times R \to \mathbf{Prop}\)
+might be defined as \(a \sim b \iff ab = ba\).
+
+For each sort \(A\), define the shorthand \(A_{\sim x} = \{a : A \mid a \sim x\}\).
+
+We want to require these subsets to themselves form a \(\T\)-model.
+If \(\T\) is the theory of rings, for instance, we want \(R_{\sim x}\) to be a ring, for any \(x : R\).
+
+To state this precisely, say that \(\sim\) \emph{cuts out a sub-\(\T\)-model} if the following two conditions hold.
+\begin{itemize}
+    \item For any function symbol \(f : A_1 \times \dots \times A_n \to B\) and any \(x : X\),
+    the restriction \(f_{\sim x} : (A_1)_{\sim x} \times \dots \times (A_n)_{\sim x} \to B_{\sim x}\) is well-defined for all \(x\).
+    \item For any \(x : X\), every axiom of \(\T\) continues to hold when each sort \(A\) is replaced by \(A_{\sim x}\), each function symbol \(f\) is replaced by \(f_{\sim x}\), and each relation symbol is replaced by its restriction.
+\end{itemize}
+
+Let's look at the example where \(\T\) is the theory of \emph{local} rings,
+where we define \(a \sim b \iff ab = ba\).
+
+The first condition expands to the following five sequents.
+\begin{align*}
+    x : R, a : R, ax = xa, b : R, bx = xb &\vdash (a+b)x = x(a+b)
+    \\ x : R, a : R, ax = xa, b : R, bx = xb &\vdash (ab)x = x(ab)
+    \\ x : R, a : R, ax = xa &\vdash (-a)x = x(-a)
+    \\ x : R &\vdash 0x = x0
+    \\ x : R &\vdash 1x = x1
+\end{align*}
+In other words, it says that \(R_{\sim x} = \{a : R \mid a \sim x\}\) is a subring of \(R\), for all \(x : R\).
+
+The second condition generates one requirement per axiom in the theory, but most of these are trivial.
+The interesting one comes from the following axiom of local rings.
+\begin{align*}
+    a : R, b : R, (\exists c : R, (a+b)c = 1) &\vdash (\exists c : R, ac = 1) \lor (\exists c : R, bc = 1)
+\end{align*}
+
+The requirement generated is as follows.
+\begin{align*}
+    &x : R, a : R, ax = xa, b : R, bx = xb, (\exists c : R, cx = xc \land (a+b)c = 1)
+    \\ &\vdash (\exists c : R, cx = xc \land ac = 1) \lor (\exists c : R, cx = xc \land bc = 1)
+\end{align*}
+This is exactly the condition that the subring \(R_{\sim x} \subseteq R\) is local.
+
+\subsection{Theorem}
+
+Without further ado, here is the main theorem of this paper.
+
+\begin{theorem} \label{main}
+    Let \(\T\) be a geometric theory.
+    For each pair of sorts \(A,B\) of \(\T\), let \(\sim : A \times B \to \mathbf{Prop}\) be a geometrically-defined relation which cuts out a sub-\(\T\)-model.
+    Further suppose \(\sim\) is symmetric; we have \(a : A, b : B, a \sim b \vdash b \sim a\) for any sorts \(A\) and \(B\).
+    Then we can interpret the type theory \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\), as defined in \cite[Section 5.1]{schopp}, in \(\Set[\T]\).
+\end{theorem}
+
+\subsection{Examples}
+
+\begin{enumerate}
+    \item 
+    Consider the theory of rings, with \(a \sim b \iff ab = ba\).
+    This is clearly symmetric and geometrically defined, and it cuts out a submodel
+    because \(\{a : R \mid ax = xa\}\) is a subring of \(R\) for any \(x : R\).
+
+    So Theorem \ref{main} applies, and we can interpret \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) in \(\Set[\Ring]\).
+
+    This is the example that motivated me to write this paper.
+
+    \item
+    Let \(\T\) be the theory of infinite decidable objects.
+    Its classifying topos is known as the Schanuel topos.
+    \begin{align*}
+        &N \text{ sort}
+        \\ a : N, b : N &\vdash a \mathrel{\#} b  \text{ prop}
+        \\ a : N, a \mathrel{\#} a &\vdash \bot
+        \\ a : N, b : N &\vdash a = b \lor a \mathrel{\#} b
+        \\ a_1 : N, \dots, a_n : N &\vdash \exists b : N, \bigwedge_i a_i \mathrel{\#} b
+    \end{align*}
+    Choose \(\sim\) to be the apartness relation: \(a \sim b \iff a \mathrel{\#} b\).
+    This is symmetric and geometrically defined. And since \(N\) is an infinite decidable object,
+    so is \(\{a : N \mid a \mathrel{\#} x\}\).
+
+    So we can interpret \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) in the Schanuel topos.
+    This is the example discussed in \cite{schopp}.
+
+    \item
+    For any theory, there is a trivial example where \(a \sim b\) always holds.
+    So we can interpret \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) in any topos.
+    This turns out to be the special case where the monoidal product coincides with the cartesian product.
+
+    \item There seems to be a ``generic example'' in the theory of undirected graphs.
+    \begin{align*}
+        &V \text{ sort}
+        \\ a : V, b : V &\vdash a \sim b \text{ prop}
+        \\ a : V, b : V, a \sim b &\vdash b \sim a
+    \end{align*}
+\end{enumerate}
+
+\section{Proof}
+
+We begin by bringing in some results from \cite{schopp}.
+
+\begin{lemma}
+    The type theory \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) can be modeled in any \\
+    \((*, 1, \Sigma, \Pi, \Pi^*)\)-type-category.
+\end{lemma}
+
+\begin{proof}
+    \cite{schopp}, section 6.
+\end{proof}
+
+\begin{lemma}
+    Let \(\B\) be a topos equipped with a strict affine symmetric monoidal closed structure \((*,\wand)\),
+    such that \(- * A\) preserves pullbacks for all \(A\).
+    Further suppose we have a canonical choice of pullback for every span in \(\B\).
+    Then the family fibration over \(\B\) is a \((*, 1, \Sigma, \Pi, \Pi^*)\)-type-category.
+\end{lemma}
+
+\begin{proof}
+    \cite{schopp}, section 3.5. Since we are in a topos, the condition that the monomorphism \(A * B \hookrightarrow A \times B\) is strong is trivial.
+\end{proof}
+
+Next, we specialize to sheaf toposes.
+
+\begin{lemma}
+    Let \((C,J)\) be a (small) site, such that \(C\) is finitely complete.
+    In fact, suppose we have a canonical choice for pullbacks in \(C\).
+    Let \(*\) be an affine symmetric monoidal structure on \(C\) that preserves pullbacks and covers.
+    Then \(\Sh(C,J)\) satisfies the conditions of the above lemma.
+\end{lemma}
+
+\begin{proof}
+    \(\Sh(C,J)\) is a Grothendieck topos, hence a topos.
+
+    \vspace*{1em}\hrule\vspace*{1em}
+
+    Theorem 4.3.2 from \cite{biering} says we get a monoidal structure \(\otimes^\Sh\) on \(\Sh(C,J)\)
+    by transporting Day convolution across the adjunction \((\mathbf{a} \dashv i) : \Psh(C,J) \rightleftarrows \Sh(C,J)\).
+    Its monoidal unit is the sheafification of the Yoneda embedding of \(*\)'s unit, which simplifies to the terminal object.
+    Chasing definitions quickly shows \(\otimes^\Sh\) is symmetric.
+    And corollary 4.3.10 from \cite{biering} says this monoidal structure is closed.
+
+    In other words, \(\otimes^\Sh\) is an affine symmetric monoidal closed structure.
+    We must show this is strict --- that the canonical map \(A \otimes^\Sh B \to A \times B\) is always a monomorphism.
+
+    But, letting \(\otimes^\Psh\) represent Day convolution on \(\Psh(C)\),
+    this map is just \(iA \otimes^\Psh iB \to iA \times iB\), restricted to sheaves.
+    Expanding both \(\otimes^\Psh\) and \(\times\) as Day convolutions,
+    this is a map, natural in \(c \in C^\mathrm{op}\), of the following type.
+    \begin{scriptsize}\[\left(\int^{c_1,c_2 \in C} A(c_1) \times B(c_2) \times (c \xrightarrow{C} c_1 * c_2)\right) \to \left(\int^{c_1,c_2 \in C} A(c_1) \times B(c_2) \times (c \xrightarrow{C} c_1 \times c_2)\right)\]\end{scriptsize}
+
+    This map is exactly what you'd expect it to be; it composes the \(c \xrightarrow{C} c_1 * c_2\) component
+    with the canonical map \(c_1 * c_2 \xrightarrow{C} c_1 \times c_2\), and leaves everything else alone.
+    So since that canonical map is mono, this is too.
+
+    \vspace*{1em}\hrule\vspace*{1em}
+
+    Finally, we have a canonical construction for pullbacks in \(\Sh(C,J)\), since we have one for \(C\).
+\end{proof}
+
+And finally, we set the site to a syntactic site, to understand classifying toposes.
+
+\begin{lemma}
+    Let \(\T\) be a geometric theory.
+    For each pair of sorts \(A,B\) of \(\T\), let \(\sim : A \times B \to \mathbf{Prop}\) be a symmetric, geometrically-defined relation, which cuts out a sub-\(\T\)-model.
+    Then the syntactic site for \(\T\) satisfies the conditions of the above lemma.
+\end{lemma}
+
+\begin{proof}
+    Let us begin with a few shorthands.
+
+    We'll allow ourselves to write sequents involving compound types, such as \(p : A \times B \vdash \pi_1 p \sim \pi_2 p\).
+    These can be straightforwardly ``compiled out'' to ordinary sequents, such as \(a : A, b : B \vdash a \sim b\).
+
+    Next, if we have a context \(\Gamma = (a_1 : A_1, \dots, a_n : A_n, \phi_1 \dots \phi_p)\),
+    we'll reuse the name \(\Gamma\) for the type \(\{(a_1, \dots, a_n) : A_1 \times \dots \times A_n \mid \phi_1 \land \dots \land \phi_p\}\).
+    If we have a substitution \(f : \Gamma \to \Delta\), there is then a natural way to define the term \(\gamma : \Gamma \vdash f\gamma : \Delta\).
+
+    Finally, if \(\gamma = (a_1, \dots, a_n) : \Gamma\) and \(\delta = (b_1, \dots, b_m) : \Delta\),
+    we write \(\gamma \sim \delta\) as a shorthand for \(\bigwedge_{i=1}^m \bigwedge_{j=1}^n a_i \sim b_j\).
+
+    With that out of the way, let's begin the proof.
+
+    \vspace*{1em}\hrule\vspace*{1em}
+
+    First of all, the syntactic category is guaranteed to be finitely complete, with a canonical construction for pullbacks.
+    Specifically, the empty context is terminal,
+    and the pullback of the span \(\Gamma \xrightarrow{f} \Xi \xleftarrow{g} \Delta\) is the context \((\gamma : \Gamma, \delta : \Delta, f\gamma = g\delta)\).
+
+    Second, we describe the monoidal structure. Given contexts \(\Gamma\) and \(\Delta\),
+    define \(\Gamma * \Delta = (\gamma : \Gamma, \delta : \Delta, \gamma \sim \delta)\).
+
+    Functoriality of \(*\) reduces to the fact that \(\sim\) respects substitutions, which further reduces to the fact that \(\sim\) respects function symbols.
+    Symmetry reduces to the symmetry of \(\sim\). Choosing the empty context as monoidal unit, the unit laws hold on the nose, and associativity up to a rearrangement of contexts.
+    All the coherences hold.
+    And since \(\Gamma * \Delta\) is just \(\Gamma \times \Delta\) with extra propositional hypotheses,
+    the map \(\Gamma * \Delta \hookrightarrow \Gamma \times \Delta\) is a monomorphism.
+    Putting that all together, \(*\) is a strict affine symmetric monoidal product on the syntactic category.
+
+    Third, we show that starring preserves pullbacks.
+    
+    Say we have a span \(\Gamma \xrightarrow{f} \Xi \xleftarrow{g} \Delta\), and another context \(\Theta\).
+    The pullback of the span is the context \((\gamma : \Gamma, \delta : \Delta, f\gamma = g\delta)\).
+    Starring with \(\Theta\) yields \((\gamma : \Gamma, \delta : \Delta, f\gamma = g\delta, \theta : \Theta, \gamma \sim \theta, \delta \sim \theta)\).
+    
+    On the other hand, if we star with \(\Theta\) first, we get the span
+    \((\gamma : \Gamma, \theta : \Theta, \gamma \sim \theta) \xrightarrow{f * \mathrm{id}_\Theta} (\xi : \Xi, \theta : \Theta, \xi \sim \theta) \xleftarrow{g * \mathrm{id}_\Theta} (\delta : \Delta, \theta : \Theta, \delta \sim \theta)\).
+    Taking the pullback yields \((\gamma : \Gamma, \theta_1 : \Theta, \gamma \sim \theta_1, \delta : \Delta, \theta_2 : \Theta, \delta \sim \theta_2, f\gamma = g\delta, \theta_1 = \theta_2)\),
+    which is equivalent to what we got before.
+
+    And fourth, we show that starring preserves covers.
+    
+    Suppose \(\{f_i : \Gamma_i \to \Delta \mid i \in I\} \in J\).
+    This means \(\delta : \Delta \vdash \bigvee_{i \in I} \exists \gamma : \Gamma_i, f_i\gamma = \delta\) is provable.
+
+    By the final hypothesis, the proof is still valid if we, throughout the proof, replace each sort \(X\) with \(X_{\sim \theta} = \{x : X \mid x \sim \theta\}\), and each function \(f\) with its restriction \(f_{\sim \theta}\).
+    This is only stated when \(\theta : \Theta\) for some \emph{sort} \(\Theta\),
+    but the same is true for any \emph{context} \(\Theta\),
+    simply by iterating once for each variable in \(\Theta\).
+
+    So \(\theta : \Theta, \delta : \Delta_{\sim \theta} \vdash \bigvee_{i \in I} \exists \gamma : (\Gamma_i)_{\sim \theta}, f_i\gamma = \delta\).
+    But this is equivalent to the statement \(\delta : (\Delta * \Theta) \vdash \bigvee_{i \in I} \exists \gamma : (\Gamma_i * \Theta), (f_i * \mathrm{id}_\Theta)\gamma = \delta\),
+    so \(\{f_i * \mathrm{id}_\Theta : \Gamma_i * \Theta \to \Delta * \Theta \mid i \in I\}\) is a cover, as required.
+\end{proof}
+
+Putting this all together:
+
+\begin{proof}[Proof of Theorem \ref{main}]
+    Combine the above four lemmas.
+\end{proof}
+
+\section{Using the Monoidal Structure}
+
+It's not enough to interpret the type theory in our topos of choice.
+We need some axioms to build on, telling us how the new monoidal structure behaves.
+After all, there's no rule in the type theory to say \(*\) isn't the same thing as \(\times\)!
+
+\begin{theorem}
+    Recall that \(\Set[\T]\) contains the generic model of \(T\).
+    So for any sort \(X\) in \(\T\), let \(U_X\) be the object of \(\Set[\T]\) that models it.
+    And for any sorts \(X\) and \(Y\), let \(\sim_U : U_X \times U_Y \to \mathbf{Prop}\) be the internal relation modelling \(\sim\).
+    Then, in the internal logic, the image of the inclusion \(U_X * U_Y \hookrightarrow U_X \times U_Y\)
+    is \(\{(x,y) \mid x \sim_U y\}\).
+\end{theorem}
+
+In other words, in the Schanuel topos, \(N * N \simeq \{(x,y) : N^2 \mid x \mathrel{\#} y\}\).
+In \(\Set[\Ring]\), \(R * R \simeq \{(x,y) : R^2 \mid xy = yx\}\).
+% In \(\Set[\Graph]\), \(V * V\) is the set of edges of the generic graph. issue: duplicated
+
+\begin{proof}
+    \(U_X\) is given by the sheafification of the Yoneda embedding of the context containing a single variable of type \(x\).
+    In short, \(U_X = \mathbf{a}\yo X\). Similarly for \(U_Y\). So we calculate, using Lemma 4.3.1 from \cite{biering}:
+    \begin{align*}
+        U_X * U_Y &= \mathbf{a}\yo X * \mathbf{a}\yo Y
+        \\ &= \mathbf{a}(i\mathbf{a}\yo X \otimes_\mathrm{Day} i\mathbf{a}\yo Y)
+        \\ &= \mathbf{a}(\yo X \otimes_\mathrm{Day} i\mathbf{a}\yo Y)
+        \\ &= \mathbf{a}(\yo X \otimes_\mathrm{Day} \yo Y)
+        \\ &= \mathbf{a}(c \mapsto \int^{c_1,c_2} (\yo X)c_1 \times (\yo Y)c_2 \times (c \xrightarrow{C} c_1 * c_2))
+        \\ &= \mathbf{a}(c \mapsto \int^{c_1,c_2} (c_1 \xrightarrow{C} X) \times (c_2 \xrightarrow{C} Y) \times (c \xrightarrow{C} c_1 * c_2))
+        \\ &= \mathbf{a}(c \mapsto (c \xrightarrow{C} X * Y))
+        \\ &= \mathbf{a}(\yo (X * Y))
+    \end{align*}
+
+    This is the internalization of the context \(X * Y = (x : X, y : Y, x \sim y)\),
+    so it equals \(\{(x : U_X, y : U_Y) \mid x \sim_U y\}\).
+\end{proof}
+
+This shows what happens when we monoidally combine types taken from the generic model.
+It's also interesting consider the opposite. What happens if we combine types that don't mention the generic model at all?
+\begin{theorem}
+    Let \(A, B \in \Set[\T]\), where \(A\) is the inverse image of a set \(\mathcal{A}\) under the global sections functor.
+    Then \(A * B \simeq A \times B\).
+\end{theorem}
+So, for example, \(\mathbf{2} * X \simeq \mathbf{2} \times X \simeq X + X\).
+
+\begin{proof}
+    We have the following chain of isomorphisms:
+    \begin{small}
+    % https://q.uiver.app/#q=WzAsOSxbMCwwLCJcXGhvbShBICogQiwgWCkiXSxbMCwxLCJcXGhvbShBLCBCIFxcd2FuZCBYKSJdLFswLDIsIlxcaG9tXFxsZWZ0KFxcbGVmdChcXGNvcHJvZFxcbGltaXRzX3thIFxcaW4gXFxtYXRoY2Fse0F9fSBcXG1hdGhiZnsxfVxccmlnaHQpLCBCIFxcd2FuZCBYXFxyaWdodCkiXSxbMCwzLCJcXHByb2RcXGxpbWl0c197YSBcXGluIFxcbWF0aGNhbHtBfX0gXFxob20oXFxtYXRoYmZ7MX0sIEIgXFx3YW5kIFgpIl0sWzEsMywiXFxwcm9kXFxsaW1pdHNfe2EgXFxpbiBcXG1hdGhjYWx7QX19IFxcaG9tKEIsIFgpIl0sWzIsMywiXFxwcm9kXFxsaW1pdHNfe2EgXFxpbiBcXG1hdGhjYWx7QX19IFxcaG9tKFxcbWF0aGJmezF9LCBCIFxcdG8gWCkiXSxbMiwyLCJcXGhvbVxcbGVmdChcXGxlZnQoXFxjb3Byb2RcXGxpbWl0c197YSBcXGluIFxcbWF0aGNhbHtBfX0gXFxtYXRoYmZ7MX1cXHJpZ2h0KSwgQiBcXHRvIFhcXHJpZ2h0KSJdLFsyLDEsIlxcaG9tKEEsIEIgXFx0byBYKSJdLFsyLDAsIlxcaG9tKEEgXFx0aW1lcyBCLCBYKSJdLFswLDEsIiIsMCx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6ImFycm93aGVhZCJ9fX1dLFsxLDIsIiIsMCx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6ImFycm93aGVhZCJ9fX1dLFsyLDMsIiIsMCx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6ImFycm93aGVhZCJ9fX1dLFszLDQsIiIsMCx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6ImFycm93aGVhZCJ9fX1dLFs0LDUsIiIsMCx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6ImFycm93aGVhZCJ9fX1dLFs1LDYsIiIsMCx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6ImFycm93aGVhZCJ9fX1dLFs2LDcsIiIsMCx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6ImFycm93aGVhZCJ9fX1dLFs3LDgsIiIsMCx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6ImFycm93aGVhZCJ9fX1dXQ==
+    \[\begin{tikzcd}
+        {\hom(A * B, X)} && {\hom(A \times B, X)} \\
+        {\hom(A, B \wand X)} && {\hom(A, B \to X)} \\
+        {\hom\left(\left(\coprod\limits_{a \in \mathcal{A}} \mathbf{1}\right), B \wand X\right)} && {\hom\left(\left(\coprod\limits_{a \in \mathcal{A}} \mathbf{1}\right), B \to X\right)} \\
+        {\prod\limits_{a \in \mathcal{A}} \hom(\mathbf{1}, B \wand X)} & {\prod\limits_{a \in \mathcal{A}} \hom(B, X)} & {\prod\limits_{a \in \mathcal{A}} \hom(\mathbf{1}, B \to X)}
+        \arrow[tail reversed, from=1-1, to=2-1]
+        \arrow[tail reversed, from=2-1, to=3-1]
+        \arrow[tail reversed, from=2-3, to=1-3]
+        \arrow[tail reversed, from=3-1, to=4-1]
+        \arrow[tail reversed, from=3-3, to=2-3]
+        \arrow[tail reversed, from=4-1, to=4-2]
+        \arrow[tail reversed, from=4-2, to=4-3]
+        \arrow[tail reversed, from=4-3, to=3-3]
+    \end{tikzcd}\]
+    \end{small}
+
+    So the result follows by Yoneda.
+\end{proof}
+
+\section{Applications}
+
+The main purpose of this paper is to enable the exploration of monoidal toposes via their internal logic.
+
+\subsection{Schanuel Topos, and Variations} \label{section-schanuel-and-variations}
+
+\cite{schopp} does a good job of this for the Schanuel topos, the classifying topos of infinite decidable objects.
+They focus on modeling the syntax of programming languages, using the generic infinite decidable object as their type of abstract variables.
+
+Our formulation suggests an interesting extension to this idea.
+Instead of infinite decidable \emph{objects}, with \(\sim\) being apartness,
+what if we work with unbounded dense decidable \emph{linear orders}, with \(\sim\) being the strict inequality?
+We lose symmetry, so we'd need to modify the type theory to make \(*\) asymmetric.
+But now our abstract variables come with a natural ordering relation, where \(A * B\)
+means all the variables in \(A\) come \emph{before} all the variables in \(B\).
+
+Is this useful? I have no idea. Is it interesting? Definitely!
+
+\subsection{Noncommutative Synthetic Differential Geometry}
+
+I was inspired to write this paper by a use-case related to \emph{synthetic differential geometry}.
+
+Synthetic differential geometry (\cite{sdg}) is the study of toposes whose internal logics satisfy, at minimum, the following axioms.
+\begin{itemize}
+    \item There is a commutative ring, \(R\).
+    \item Let \(D = \{x \in R | x^2 = 0\}\). Then the map \(R^2 \to (D \to R)\) given by \((a,b) \mapsto (d \mapsto a + bd)\) is an isomorphism.
+\end{itemize}
+
+This allows the immediate definition of derivatives, tangent vectors, or other concepts from differential geometry.
+For instance, if \(f : R \to R\), \(f'\) is simply the unique function satisfying \(f(x+d) = f(x) + f'(x) d\) for all \(x : X\) and \(d : D\).
+Limits and complicated epsilon-delta arguments are completely sidestepped; \emph{every} function \(R \to R\) is smooth.
+
+A prototypical, though suboptimal, topos satisfying these axioms is the classifying topos of commutative rings.
+But this immediately suggests a \emph{noncommutative} version of synthetic differential geometry, where we work with \(\Set[\Ring]\) instead of \(\Set[\CRing]\).
+
+When I tried this, the first thing I discovered is that \(\Set[\Ring]\) has an important monoidal structure,
+given by Day convolution over the tensor product of rings.
+This is exactly the monoidal structure we get if we set \(a \sim b = (ab = ba)\) in Theorem \ref{main}.
+
+And indeed, \(\Set[\Ring]\) supports a \emph{monoidal} version of the synthetic differential geometry axioms.
+\begin{theorem} \label{nsdg}
+    Internally to \(\Set[\Ring]\), let \(R\) be the generic ring, and let \(D = \{x \in R | x^2 = 0\}\).
+    Then \(R^2 \simeq (D \wand R)\).
+\end{theorem}
+
+
+\begin{proof}
+    We reason analogously to the proof in section 9.3 of \cite{sgm}.
+
+    Recall that \(\Set[\Ring]\) is the topos of presheaves on the opposite of the category of finitely presented rings.
+    We have \(R = \yo(\Z[x])\), \(D = \yo(\Z[d]/(d^2))\), and \(R^2 = \yo(\Z[a,b])\).
+
+    We want to show \(R^2\) is the monoidal exponential \(D \wand R\).
+    So since monoidal exponentials are preserved by Yoneda,
+    it suffices to show that \(\Z[a,b]\) is a monoidal exponential of \(\Z[x]\) and \(\Z[d]/(d^2)\) in the opposite of the category of finitely presented rings.
+    That is, that it's the monoidal \emph{coexponential} in finitely presented rings.
+
+    We check the universal property directly.
+    
+    Define the coevaluation map \(\epsilon \in \hom_{\Ring_\mathrm{fp}}(\Z[x], \Z[a,b] \otimes \Z[d]/(d^2))\)
+    to be the unique map taking \(x\) to \(a \otimes 1 + b \otimes d\).
+
+    Now, every \(f \in \hom_{\Ring_\mathrm{fp}}(\Z[x], X \otimes \Z[d]/(d^2))\) is determined by where it maps \(x\).
+    And \(f(x)\) will always have the form \(\alpha \otimes 1 + \beta \otimes d\), for some unique choice of \(\alpha, \beta \in X\).
+    But then \(f = (g \otimes \mathrm{id}) \circ \epsilon\),
+    where \(g\) maps \(a\) to \(\alpha\) and \(b\) to \(\beta\).
+
+    So every \(f \in \hom_{\Ring_\mathrm{fp}}(\Z[x], X \otimes \Z[d]/(d^2))\) factors through \(\epsilon\).
+    And this factorization is unique, because every possible \(g\) is hit by the procedure just described.
+\end{proof}
+
+A final point of interest: Internally to \(\Set[\CRing]\), the type \(R \to R\) is exactly the space of polynomials.
+But when we move to \(\Set[\Ring]\) and \(R\) becomes noncommutative, there are now \emph{two} reasonable notions of polynomial.
+Either the coefficients are assumed to commute with the indeterminate, or they aren't.
+These two notions correspond exactly to the two choices of function space: \(R \wand R\) and \(R \to R\).
+
+\subsection{Separation Logic}
+
+A more speculative application is \emph{separation logic},
+a method of proving the correctness of imperative programs.
+
+Traditionally, separation logic is an intuitionistic logic, equipped with an extra monoidal closed structure.
+To me, this looks like a \emph{decategorified} monoidal topos.
+Might there be some clever choice of theory \(T\) and relation \(\sim\),
+so that the interpretation of \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\)
+in the classifying topos \(\Set[\T]\) acts as a categorified separation logic?
+
+\section{Future Work}
+
+Besides the applications detailed above, I can see a few other worthwhile lines of research.
+
+\subsection{Reasoning Principles}
+
+When discussing the application to \(\Set[\Ring]\), the proof of Theorem \ref{nsdg}
+stepped outside the internal logic, reasoning directly about the topos in its incarnation as a functor category.
+I find this unsatisfying.
+
+By contrast, when proving the version of this for \(\Set[\CRing]\),
+we can begin with the axiom scheme provided by \cite{blechschmidt},
+then proceed to work entirely within the internal logic.
+Specifically, the axiom tells us that \(A \simeq (\hom_{R\text{-alg}}(A,R) \to R)\) for any \(R\)-algebra \(A\);
+specializing to \(A = R[d]/(d^2)\) shows that \((D \to R) \simeq R[d]/(d^2)\), which is set-isomorphic to \(R^2\).
+
+It would be valuable to either extend \cite{blechschmidt}'s axiom scheme to allow internal proofs of theorems like Theorem \ref{nsdg},
+or show how to do so using the existing axiom scheme.
+
+\subsection{Modifying the Type Theory}
+
+It might also make sense to explore modifications or extensions to the type theory.
+
+We saw this already in Section \ref{section-schanuel-and-variations},
+where the theory of unbounded dense decidable linear orders wants \(*\) to be asymmetric.
+
+It also seems that the \emph{relation} \(\sim : A \times B \to \mathbf{Prop}\) ought to be generalized to a \emph{dependent type} \(\sim : A \times B \to \mathbf{Type}\).
+% and that this would correspond to the internal maps \(A * B \to A \times B\) no longer being injective.
+What changes to \cite{schopp}'s type theory does this require, if any?
+
+And finally, \cite{schopp} found it useful to add a monoidal \(\Sigma\) type to their type theory, analogous to the monoidal \(\Pi\) type.
+What additional structure is needed on \(\T\) for the interpretation in \(\Set[\T]\) to support this?
+
+\todo{References}
+\todo{General proofreading}
+
+\end{document}

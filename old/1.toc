@@ -1,0 +1,14 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{}%
+\contentsline {section}{\numberline {2}Main Result}{2}{}%
+\contentsline {subsection}{\numberline {2.1}Setup}{2}{}%
+\contentsline {subsection}{\numberline {2.2}Theorem}{3}{}%
+\contentsline {subsection}{\numberline {2.3}Examples}{3}{}%
+\contentsline {section}{\numberline {3}Proof}{4}{}%
+\contentsline {section}{\numberline {4}Using the Monoidal Structure}{6}{}%
+\contentsline {section}{\numberline {5}Applications}{8}{}%
+\contentsline {subsection}{\numberline {5.1}Schanuel Topos, and Variations}{8}{}%
+\contentsline {subsection}{\numberline {5.2}Noncommutative Synthetic Differential Geometry}{8}{}%
+\contentsline {subsection}{\numberline {5.3}Separation Logic}{10}{}%
+\contentsline {section}{\numberline {6}Future Work}{10}{}%
+\contentsline {subsection}{\numberline {6.1}Reasoning Principles}{10}{}%
+\contentsline {subsection}{\numberline {6.2}Modifying the Type Theory}{10}{}%

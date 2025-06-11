@@ -49,13 +49,16 @@
 
 \section{Intro}
 
-\cite{schopp} introduces a bunched dependent type theory, \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\),
-of potentially general utility. But they only instantiate it for a single topos: the Schanuel topos.
+Dependent type theory, in its standard form, has a model in every topos.
+By working within the type theory, you can therefore reason ``internally'' to the topos.
 
-By stitching together a few results from the literature,
+To capture an additional monoidal structure on the topos,
+\cite{schopp} extends the type theory to a system they call \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\).
+While that paper is specific to the Schanuel topos, the type theory described within is applicable to many others.
+
 I provide an easy method to verify that \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\)
 can be interpreted in a classifying topos of your choice,
-so you can start \emph{using} the language as quickly as possible.
+so you can start \emph{using} the internal language as quickly as possible.
 
 \section{Main Theorem}
 
