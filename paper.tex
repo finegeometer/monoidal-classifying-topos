@@ -13,10 +13,10 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{mathpartir}
-\usepackage{tcolorbox}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{construction}[theorem]{Construction}
 \newtheorem{example}[theorem]{Example}
 
 \newcommand*{\Prop}{\mathbf{Prop}}
@@ -62,223 +62,189 @@ so you can start \emph{using} the internal language as quickly as possible.
 
 \section{Main Theorem}
 
+For simplicity of exposition, I describe the theorem and proof in the case of single-sorted theories.
+The extension to multiple sorts is straightforward, but terminologically awkward.
+
 \begin{theorem}
-    Consider a geometric theory, \(\T\).
-    For each pair \(A,B\) of sorts of \(\T\), let \((\sim) : A \times B \to \Prop\) be a relation, defined in terms of \(\T\)'s signature.
-    Further suppose that \((\sim)\) is symmetric, and that the following holds.
-
-    \begin{quote}
-        Let \(X\) be an arbitrary sort of \(\T\), and let \(x : X\).
-        Then if you restrict each sort \(A\) of \(\T\) to the subset \(\{a : A \mid a \sim x\}\),
-        the result is another \(\T\)-model.
-    \end{quote}
-
-    \noindent Then \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) interprets into \(\Set[\T]\).
+    Let \(\T\) be a single-sorted geometric theory, with sort \(X\).
+    Let \((\sim) : X \to X \to \Prop\) be a geometrically-defined symmetric relation.
+    Further suppose that for any \(x \in X\), \(\{a : X \mid a \sim x\}\) is a sub-\(\T\)-model of \(X\).
+    Then \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) interprets into \(\Set[\T]\).
 \end{theorem}
 
-\subsection{Example}
-
-As an example, let \(\T\) be the theory of local rings, and let \(\sim : R \times R \to \Prop\) be the relation \(a \sim b \iff a \cdot b = b \cdot a\).
-
-\((\sim)\) is clearly symmetric. And for any \(x : R\), \(\{a : R \mid a \sim x\}\) is a local subring of \(R\).
-So the conditions of the theorem are satisfied, and therefore the type theory interprets into \(\Set[\T]\).
+For example, let \(\T\) be the theory of rings, and let \(a \sim b\) mean \(ab = ba\).
+The hypothesis holds because centralizers of rings are rings;
+so we get an interpretation of the bunched type theory into \(\Set[\Ring]\).
 
 \subsection{Details} \label{Details}
 
-Some of the concepts in the theorem statement may be insufficiently precise. I address that here.
-
-To say \(\sim\) is symmetric is to say that for every pair \(A,B\) of sorts in \(\T\),
-the following is provable in the language of the theory.
-\[a : A, b : B \vdash a \sim b \implies b \sim a\]
-
-To say that the subsets \(\{a : A \mid a \sim x\}\) form another \(\T\)-model is to say the following:
+The above makes more sense intuitively than formally.
+So to be perfectly precise, when I say
+``\(\{a : X \mid a \sim x\}\) is a sub-\(\T\)-model of \(X\)'',
+I mean the following:
 \begin{itemize}
-    \item For every sort \(X\) and every function symbol \(f : A_1 \times \dots \times A_n \to B\), the following is provable:
-    \[x : X, a_1 : A_1 \dots a_n : A_n, a_1 \sim x \dots a_n \sim x \vdash f(a_1 \dots a_n) \sim x\]
-    \item For every sort \(X\) and every axiom \(a_1 : A_1 \dots a_n : A_n, P \vdash Q\):
-    
-    Let \(P'\) be produced from \(P\)
-    by replacing each existential quantifier \(\exists b : B, \dots\)
-    with \(\exists b : B, b \sim x \land \dots\).
-    Similarly define \(Q'\) in terms of \(Q\).
-    Then the following is provable:
-    \[x : X, a_1 : A_1 \dots a_n : A_n, a_1 \sim x \dots a_n \sim x, P' \vdash Q'\]
+    \item For every function symbol \(f : X^n \to X\), we require:
+    \[x : X, \substack{a_1 : X \\ a_1 \sim x}, \dots, \substack{a_n : X \\ a_n \sim x} \vdash f(a_1 \dots a_n) \sim x\]
+    \item For every axiom of \(\T\), run the following steps. We require the resulting sequent to hold.
+    \begin{itemize}
+        \item Prepend a variable \(x : X\) to the context.
+        \item For each other variable \(a : X\) in the context, add an additional hypothesis \(a \sim x\).
+        \item Replace every instance of \(\exists a : X, P\) with \(\exists a : X, a \sim x \land P\).
+    \end{itemize}
 \end{itemize}
 
-To see how this plays out in practice, consider the example from above --- the theory of local rings.
-
-\begin{tcolorbox}[colback=red!5!white, colframe=red!50!black]
-    \begin{mathpar}
-        R \text{ sort}
-        \and 0 : R
-        \and 1 : R
-        \\ (+) : R \times R \to R
-        \and (\cdot) : R \times R \to R
-        \and (-) : R \to R
-        \\ a,b,c : R \vdash (a + b) + c = a + (b + c)
-        \and a,b : R \vdash a + b = b + a
-        \\ a : R \vdash a + 0 = a
-        \and a : R \vdash a + (-a) = 0
-        \\ a,b,c : R \vdash (a \cdot b) \cdot c = a \cdot (b \cdot c)
-        \and a : R \vdash a \cdot 1 = a
-        \\ a,b,c : R \vdash (a + b) \cdot c = a \cdot c + b \cdot c
-        \and a,b,c : R \vdash a \cdot (b + c) = a \cdot b + a \cdot c
-        \\ 0 = 1 \vdash \bot
-        \and a,b : R, a + b = 1 \vdash
-            (\exists c, a \cdot c = 1 \land c \cdot a = 1) \lor
-            (\exists c, b \cdot c = 1 \land c \cdot b = 1)
-    \end{mathpar}
-    \tcblower
-    \[a \sim b \iff a \cdot b = b \cdot a\]
-\end{tcolorbox}
-
-The sub-\(\T\)-model conditions say the following:
-\begin{tcolorbox}[colback=blue!5!white, colframe=blue!50!black]
-    \begin{align*}
-        x : R &\vdash 0 x = x 0
-        \\ x : R &\vdash 1 x = x 1
-        \\ x,a,b : R, a x = x a, b x = x b &\vdash (a + b) x = x (a + b)
-        \\ x,a,b : R, a x = x a, b x = x b &\vdash (a b) x = x (a b)
-        \\ x,a : R, a x = x a &\vdash (-a) x = x (-a)
-    \end{align*}
-    \tcblower
-    \begin{align*}
-        x,a,b,c : R, ax=xa, bx=xb, cx=xc &\vdash (a + b) + c = a + (b + c)
-        \\ x,a,b : R, ax=xa, bx=xb &\vdash a + b = b + a
-        \\ x,a : R, ax=xa &\vdash a + 0 = a
-        \\ x,a : R, ax=xa &\vdash a + (-a) = 0
-        \\ x,a,b,c, ax=xa, bx=xb, cx=xc : R &\vdash (ab)c = a(bc)
-        \\ x,a : R, ax=xa &\vdash a1 = a
-        \\ x,a,b,c, ax=xa, bx=xb, cx=xc : R &\vdash (a + b) c = a c + b c
-        \\ x,a,b,c, ax=xa, bx=xb, cx=xc : R &\vdash a (b + c) = a b + a c
-        \\ x : R, 0 = 1 &\vdash \bot
-        \\ x,a,b : R, ax=xa, bx=xb, a + b = 1 &\vdash \\
-            (\exists c, cx=xc \land ac = 1 \land ca = 1) &\lor
-            (\exists c, cx=xc \land bc = 1 \land cb = 1)        
-    \end{align*}
-\end{tcolorbox}
-
-All of these are easily verified. More to the point, they capture the idea
-that for all \(x : R\), the subset \(\{a : R \mid ax = xa\}\) is a local ring.
+As an example of the latter, say \(\T\) is the theory of inhabited sets, with axiom \(\vdash \exists a : X, \top\).
+Then the required sequent is \(x : X \vdash \exists a : X, a \sim x \land \top\).
 
 \section{Proof of Main Theorem}
 
-To prove the main theorem, we begin by recalling a result from \cite{schopp}.
+For the duration of this section, we accept the assumptions of the main theorem.
 
-\begin{lemma}
-    Let \(\B\) be a topos equipped with a strict affine symmetric monoidal closed structure \((*,\wand)\),
-    such that \(- * A\) preserves pullbacks for all \(A\).
-    Further suppose we have a canonical choice of pullback for every span in \(\B\).
-    Then the type theory \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) interprets into \(\B\).
+\vspace{1em}
+
+\noindent To begin, notice a key detail of the transformation described above.
+\begin{lemma} \label{transform-lemma}
+    The transformation of sequents described in section \ref{Details},
+    used there to transform the axioms of \(\T\), preserves derivability.
+    Any provable sequent remains provable after the transformation.
 \end{lemma}
 
 \begin{proof}
-    Chapter 6 of \cite{schopp} shows that we can interpret the type theory in any ``\((*, 1, \Sigma, \Pi, \Pi^*)\)-type-category''.
-    Section 3.5 tells us that \(\B\) is such a category.
+    First, prove that for any term \(t\) in any context, \(t \sim x\) is provable in the transformed context.
+    This is immediate by induction on the structure of \(t\) ---
+    for variables, the transformation added \(t \sim x\) to the context;
+    for compound terms, \(f(t_1 \dots t_n) \sim x\) follows from the statements \(t_i \sim x\).
+
+    Now the lemma follows from a second induction, this time on the structure of proofs.
+    There are a number of cases; all of them easy, so I'll provide just two examples.
+    
+    Consider the introduction and elimination rules for \(\exists\).
+    \begin{mathpar}
+        \inferrule{\Gamma \vdash t : X \\ \Gamma \vdash P[t/a]}{\Gamma \vdash \exists a:X, P}
+        \and \inferrule{\Gamma \vdash \exists a:X, P \\ \Gamma, a:X, P \vdash Q}{\Gamma \vdash Q}
+    \end{mathpar}
+    After transformation, these become:
+    \begin{mathpar}
+        \inferrule{\Gamma' \vdash t : X \\ \Gamma' \vdash P'[t/a]}{\Gamma' \vdash \exists a:X, a \sim x \land P'}
+        \and \inferrule{\Gamma' \vdash \exists a:X, a \sim x \land P' \\ \Gamma', a:X, a \sim x, P' \vdash Q'}{\Gamma' \vdash Q'}
+    \end{mathpar}
+    Both of which are immediate; the first because we've already proven \(\Gamma' \vdash t \sim x\).
 \end{proof}
 
-Next, we specialize to sheaf toposes.
-
-\begin{lemma} \label{sh}
-    Let \((C,J)\) be a (small) site, such that \(C\) is finitely complete,
-    with a canonical choice of pullbacks.
-    Let \(*\) be a strict affine symmetric monoidal structure on \(C\) that preserves pullbacks and covers.
-    Then \(\Sh(C,J)\) satisfies the conditions of the above lemma.
-\end{lemma}
+Next, bootstrap to the syntactic site.
+\begin{construction}
+    We place a monoidal structure on \(\T\)'s syntactic category.
+\end{construction}
 
 \begin{proof}
-    \(\Sh(C,J)\) is a Grothendieck topos, hence a topos. There is a canonical choice of pullbacks in \(\Sh(C,J)\), given by pointwise lifting the canonical pullbacks in \(C\).
+    Given two contexts \(A\) and \(B\), define their product by extending \(A \times B\) with the hypotheses \(a \sim b\) for each variable \(a\) in the first context and each variable \(b\) in the second.
+    For example:
+    \[(a,b : X, \phi(a,b)) * (c : X, \psi(c)) = (a,b,c : X, \phi(a,b), \psi(c), a \sim c, b \sim c)\]
+    
+    We'll handle functoriality one argument at a time.
 
-    Now, theorem 4.3.2 from \cite{biering} shows the existence of a monidal structure \(\otimes^\Sh\) on \(\Sh(C,J)\),
-    given by transporting Day convolution across the adjunction \((\mathbf{a} \dashv i) : \Psh(C,J) \rightleftarrows \Sh(C,J)\).
+    Given a morphism \(f : A \to A'\), we must produce a morphism \(f*1_B : A*B \to A'*B\).
+    That is, a provably functional relation on the combined context \((A*B) \times (A'*B)\).
+
+    But \(f \times 1_B : A \times B \to A' \times B\) is similarly a relation on the context \((A \times B) \times (A' \times B)\).
+    We choose its restriction.
+
+    Is this restriction provably functional? The only potential point of failure is the existence of an output value. So we must show:
+    \[(\vec{a},\vec{b}) : (A*B) \vdash \exists (\vec{a'},\vec{b'}) : (A'*B), (f*1_B)((\vec{a},\vec{b}), (\vec{a'},\vec{b'}))\]
+
+    Or equivalently:
+    \[\vec{a} : A, \vec{b} : B, \vec{a} \sim \vec{b} \vdash \exists \vec{a'} : A', \exists \vec{b'} : B, \vec{a'} \sim \vec{b'} \land f(\vec{a},\vec{a'}) \land \vec{b} = \vec{b'}\]
+    \[\vec{a} : A, \vec{b} : B, \vec{a} \sim \vec{b} \vdash \exists \vec{a'} : A', \vec{a'} \sim \vec{b} \land f(\vec{a},\vec{a'})\]
+
+    But this is obtained from \(\vec{a} : A \vdash \exists \vec{a'} : A', f(\vec{a},\vec{a'})\) by applying Lemma \ref{transform-lemma} once for each variable in \(B\).
+    And that holds because \(f\) is provably functional.
+
+    \vspace{1em}
+
+    We've defined \(f * 1_B\). The definition of \(1_A * g\) is analogous.
+    All of the functoriality laws, including the interchange condition \((f * 1) \circ (1 * g) = (1 * g) \circ (f * 1)\),
+    follow from relating \(f * 1_B\) back to \(f \times 1_B\), and using the bifunctoriality of the cartesian product.
+\end{proof}
+
+\begin{lemma}\leavevmode
+    \begin{enumerate}
+        \item The monoidal structure is symmetric, with the terminal object as the monoidal unit.
+        \item The canonical map \(A*B \to A \times B\) is a monomorphism.
+        \item For any \(X\), the endofunctor \(-*X\) preserves pullbacks and covers.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}\leavevmode
+    \begin{enumerate}
+        \item Immediate by chasing definitions.
+        \item \(A*B\) is simply \(A \times B\) with extra hypotheses.
+        \item \begin{description}
+            \item[Pullbacks:] Consider any cospan \(A \xrightarrow{f} C \xleftarrow{g} B\). We have:
+            \begin{align*}
+                A \times_C B &= \vec{a} : A, \vec{b} : B, \vec{c} : C, f(a,c), g(b,c)
+                \\ (A \times_C B) * X &= \vec{a} : A, \vec{b} : B, \vec{c} : C, f(a,c), g(b,c),
+                \\ &\qquad \vec{x} : X, \vec{a} \sim \vec{x}, \vec{b} \sim \vec{x}, \vec{c} \sim \vec{x}
+                \\ (A*X) \times_{C*X} (B*X) &= \vec{a} : (A*X), \vec{b} : (B*X), \vec{c} : (C*X),
+                \\ &\qquad (f*1_X)(a,c), (g*1_X)(b,c)
+                \\ &= \vec{a} : A, \vec{x}_1 : X, \vec{a} \sim \vec{x}_1,
+                \\ &\qquad \vec{b} : A, \vec{x}_2 : X, \vec{b} \sim \vec{x}_2,
+                \\ &\qquad \vec{c} : A, \vec{x}_3 : X, \vec{c} \sim \vec{x}_3,
+                \\ &\qquad f(a,c), \vec{x}_1 = \vec{x}_3,
+                \\ &\qquad g(b,c), \vec{x}_2 = \vec{x}_3
+            \end{align*}
+            \item[Covers:] Consider any cover \(\{f_i : A_i \to B | i \in I\}\).
+            Since this is a cover:
+            \[\vec{b} : B \vdash \bigvee_{i \in I} \exists \vec{a} : A_i, f_i(\vec{a},\vec{b})\]
+            We are to show that \(\{f_i*1_X : A_i*X \to B*X | i \in I\}\) is a cover. That is:
+            \[\vec{b} : B*X \vdash \bigvee_{i \in I} \exists \vec{a} : A_i*X, (f_i*1_X)(\vec{a},\vec{b})\]
+            Equivalently:
+            \[\vec{b} : B, \vec{x} : X, \vec{b} \sim \vec{x} \vdash \bigvee_{i \in I} \exists \vec{a} : A_i, \exists \vec{y} : X, \vec{a} \sim \vec{y} \land f_i(\vec{a},\vec{b}) \land \vec{y} = \vec{x}\]
+            \[\vec{b} : B, \vec{x} : X, \vec{b} \sim \vec{x} \vdash \bigvee_{i \in I} \exists \vec{a} : A_i, \vec{a} \sim \vec{x} \land f_i(\vec{a},\vec{b})\]
+            But this follows from applying the transformation in Lemma \ref{transform-lemma} to the hypothesis, once for each variable in \(X\).
+        \end{description}
+    \end{enumerate}
+\end{proof}
+
+Lift to the classifying topos.
+
+\begin{construction} \label{sh}
+    We equip \(\Set[\T]\) with a strictly affine symmetric monoidal closed structure \((*,\wand)\).
+\end{construction}
+
+\begin{proof}
+    Let \(\C_\T\) be \(\T's\) syntactic category. Recall that \(\Set[\T] = \Sh(\C_\T)\).
+
+    Theorem 4.3.2 from \cite{biering} defines a monidal structure \(\otimes^\Sh\) on \(\Sh(\C_\T)\),
+    given by transporting Day convolution across the adjunction \((\mathbf{a} \dashv i) : \Psh(\C_\T) \rightleftarrows \Sh(\C_\T)\).
     Corollary 4.3.10 from the same shows that it is closed.
-    Chasing definitions quickly shows \(\otimes^\Sh\) is symmetric.
-    And the monoidal unit is the sheafification of the Yoneda embedding of \(*\)'s unit;
-    since \(*\) is affine, this simplifies to the terminal object.
 
-    In other words, \(\otimes^\Sh\) is an affine symmetric monoidal closed structure.
-    It remains to show that this is strict --- that the canonical map \(A \otimes^\Sh B \to A \times B\) in \(\Sh(C,J)\) is always a monomorphism.
+    The monoidal unit is the sheafification of the Yoneda embedding of \(*\)'s unit.
+    Since \(*\) is affine, this simplifies to the terminal object.
 
-    We can reduce to the case of presheaves.
+    Symmetry is a simple definition chase. So it remains only to show that
+    that the canonical map \(A \otimes^\Sh B \to A \times B\) in \(\Sh(C,J)\) is always a monomorphism.
+
     Letting \(\otimes^\Psh\) represent Day convolution on \(\Psh(C)\),
-    the map of interest is just the result of applying the sheafification functor, which preserves monomorphisms, to the canonical map \(iA \otimes^\Psh iB \to iA \times iB\).
+    the map of interest is just the result of applying the sheafification functor,
+    which preserves monomorphisms, to the canonical map \(iA \otimes^\Psh iB \to iA \times iB\).
 
     Expanding both \(\otimes^\Psh\) and \(\times\) as Day convolutions,
-    this is a set-map, natural in \(c \in C^\mathrm{op}\), of the following type.
+    this is a \(\Set\)-map, natural in \(c \in C^\mathrm{op}\), of the following type.
     \begin{scriptsize}\[\left(\int^{c_1,c_2 \in C} A(c_1) \times B(c_2) \times (c \xrightarrow{C} c_1 * c_2)\right) \to \left(\int^{c_1,c_2 \in C} A(c_1) \times B(c_2) \times (c \xrightarrow{C} c_1 \times c_2)\right)\]\end{scriptsize}
     This map is exactly what you'd expect it to be; it composes the \(c \xrightarrow{C} c_1 * c_2\) component
     with the canonical map \(c_1 * c_2 \xrightarrow{C} c_1 \times c_2\), and leaves everything else alone.
     Since that canonical map is mono, this is too.
 \end{proof}
 
-Finally, we set the site to a syntactic site, to understand classifying toposes.
+And finally:
 
-\begin{lemma}
-    Let \(\T\) be a geometric theory, satisfying the conditions of the main theorem.
-    Then the syntactic site for \(\T\) satisfies the conditions of the above lemma.
-\end{lemma}
+\begin{construction}
+    We have an interpretation of \(\Set[\T]\) into \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\).
+\end{construction}
 
 \begin{proof}
-    Let us define a few shorthands.
-
-    We'll allow ourselves to write sequents involving compound types, such as \(p : A \times B \vdash \pi_1 p \sim \pi_2 p\).
-    These can be straightforwardly ``compiled out'' to ordinary sequents, such as \(a : A, b : B \vdash a \sim b\).
-
-    Next, if we have a context \(\Gamma = (a_1 : A_1, \dots, a_n : A_n, \phi_1 \dots \phi_p)\),
-    we'll reuse the name \(\Gamma\) for the type \(\{(a_1, \dots, a_n) : A_1 \times \dots \times A_n \mid \phi_1 \land \dots \land \phi_p\}\).
-    If we have a substitution \(f : \Gamma \to \Delta\) and a term \(\gamma : \Gamma\),
-    there is a natural way to define the term \(f\gamma : \Delta\).
-
-    Finally, if \(\gamma = (a_1, \dots, a_m) : \Gamma\) and \(\delta = (b_1, \dots, b_n) : \Delta\),
-    we write \(\gamma \sim \delta\) as a shorthand for \(\bigwedge_{i=1}^m \bigwedge_{j=1}^n a_i \sim b_j\).
-
-    With that out of the way, let's begin the proof.
-
-    \vspace{1em}
-
-    \noindent The syntactic category is guaranteed to be finitely complete, with a canonical construction for pullbacks.
-    Specifically, the empty context is terminal,
-    and the pullback of the span \(\Gamma \xrightarrow{f} \Xi \xleftarrow{g} \Delta\) is the context \((\gamma : \Gamma, \delta : \Delta, f\gamma = g\delta)\).
-
-    Given contexts \(\Gamma\) and \(\Delta\), define \(\Gamma * \Delta = (\gamma : \Gamma, \delta : \Delta, \gamma \sim \delta)\).
-    I claim this is a strict affine symmetric monoidal product on the syntactic category.
-    \begin{itemize}
-        \item Associativity and the unit laws are easily checked, and symmetry reduces to the symmetry of \(\sim\).
-        \item Functoriality says that if \(f : \Gamma \to \Gamma'\), \(f \times \mathrm{id}_\Delta\) is a valid map \(\Gamma * \Delta \to \Gamma' * \Delta\).
-        This reduces to the claim \(x : \Delta, \gamma : \Gamma, \gamma \sim x \vdash f\gamma \sim x\).
-        Further reducing to the same claim about the basic sorts and function symbols, this is exactly one of the hypotheses, as detailed in Section \ref{Details}.
-        \item Since \(\Gamma * \Delta\) is a subtype of \(\Gamma \times \Delta\), strictness holds, and the coherence equations are trivial.
-    \end{itemize}
-
-    It remains to show that for any context \(\Theta\), the functor \(- * \Theta\) preserves pullbacks and covers.
-
-    Preservation of pullbacks is a direct computation. For the span \(\Gamma \xrightarrow{f} \Xi \xleftarrow{g} \Delta\),
-    it simply says the following two contexts are isomorphic, a fact which is easily checked.
-    \begin{align*}
-        &(\gamma : \Gamma, \delta : \Delta, f\gamma = g\delta, \theta : \Theta, \gamma \sim \theta, \delta \sim \theta) \\
-        &(\gamma : \Gamma, \theta_1 : \Theta, \gamma \sim \theta_1, \delta : \Delta, \theta_2 : \Theta, \delta \sim \theta_2, f\gamma = g\delta, \theta_1 = \theta_2)
-    \end{align*}
-
-    That leaves covers. Suppose \(\{f_i : \Gamma_i \to \Delta \mid i \in I\}\) is a cover,
-    meaning \(\delta : \Delta \vdash \bigvee_{i \in I} \exists \gamma : \Gamma_i, f_i\gamma = \delta\) is \(\T\)-provable.
-
-    We know by assumption that for any sort \(X\) and any \(x : X\),
-    \(\T\)-provable statements remain \(\T\)-provable upon restricting each sort \(A\) to its subset \(\{a : A \mid a \sim x\}\).
-    Iterating this fact, the same is true if we replace the sort \(X\) by a context, such as \(\Theta\).
-
-    Therefore, we know the following statement is provable.
-    \[\theta : \Theta, \delta : \{\delta : \Delta \mid \delta \sim \theta\} \vdash \bigvee_{i \in I} \exists \gamma : \{\gamma : \Gamma_i \mid \gamma \sim \theta\}, f_i\gamma = \delta\]
-
-    But that's equivalent to the following.
-    \[\delta : (\Delta * \Theta) \vdash \bigvee_{i \in I} \exists \gamma : (\Gamma_i * \Theta), (f_i * \mathrm{id}_\Theta)\gamma = \delta\]
-
-    So \(\{f_i * \mathrm{id}_\Theta : \Gamma_i * \Theta \to \Delta * \Theta \mid i \in I\}\) is a cover, as required.
-\end{proof}
-
-Putting everything together:
-
-\begin{proof}[Proof of Main Theorem]
-    Combine the above four lemmas.
+    Apply section 3.5 of \cite{schopp} to see that \(\Set[\T]\) is a ``\((*, 1, \Sigma, \Pi, \Pi^*)\)-type-category'',
+    then apply Chapter 6 of the same to construct the interpretation.
 \end{proof}
 
 \section{Using the Monoidal Structure}
@@ -290,26 +256,29 @@ If \(R\) is the generic local ring, you'll want to know that \(R * R = \{(a,b) :
 Hence this next theorem.
 
 \begin{theorem}
-    Recall that \(\Set[\T]\) contains the generic model of \(\T\).
-    Suppose \(A\) and \(B\) are sorts of \(\T\), interpreted in the generic model.
-    Then, internally to the language, a pair \((a,b)\) is in the image of the inclusion \(A * B \hookrightarrow A \times B\) exactly when \(a \sim b\).
+    Let \(U\) be the generic \(\T\)-model in \(\Set[\T]\).
+    Then \(U * U = \{(a,b) : U \times U \mid a \sim b\}\), as subsets of \(U \times U\).
 \end{theorem}
 
 \begin{proof}
-    To avoid confusion, write \(A\) to refer to the sort in \(\T\),
-    \((a:A)\) to refer to the \emph{context} in \(\T\),
-    and \(U_A\) to refer to the corresponding type in the generic model.
+    Viewing \(\Set[\T]\) as \(\Sh(\C_\T)\), expand.
+    \begin{align*}
+        U \otimes^\Sh U
+        &\simeq \mathbf{a}\yo(x:X) \otimes^\Sh \mathbf{a}\yo(x:X)
+        \\ &\simeq \mathbf{a}(i\mathbf{a}\yo(x:X) \otimes^\Psh i\mathbf{a}\yo(x:X))
+        \\ &\simeq \mathbf{a}(\yo(x:X) \otimes^\Psh \yo(x:X))
+        \\ &\simeq \mathbf{a}\yo((x:X) * (x:X))
+        \\ &\simeq \mathbf{a}\yo(a:X, b:X, a \sim b)
+        \\ &\simeq \{(a,b) : U \times U \mid a \sim b\}
+    \end{align*}
 
-    Then \(U_A\) interprets as \(\mathbf{a}\yo(a:A)\), and similarly for \(B\).
-    The type \(\{(a,b) : U_A \times U_B \mid a \sim b\}\) interprets as \(\mathbf{a}\yo(a:A, b:B, a \sim b)\),
-    and its inclusion into \(U_A \times U_B\) is \(\mathbf{a} \circ \yo\) applied to the obvious substitution \((a:A,b:B,a \sim b) \to (a:A,b:B)\).
-
-    Now, in the proof of Lemma \ref{sh}, we computed the interpretation of a general inclusion \(X * Y \hookrightarrow X \times Y\).
-    Specializing to the types \(U_A\) and \(U_B\), that result simplifies to the obvious map
-    \(\mathbf{a}\yo((a:A) * (b:B)) \to \mathbf{a}\yo((a:A) \times (b:B))\).
-    That is, it's \(\mathbf{a} \circ \yo\) applied to the obvious substitution from \((a:A,b:B,a \sim b)\) to \((a:A,b:B)\).
-
-    So the interpretations match. Thus \(U_A * U_B = \{(a,b) : U_A \times U_B \mid a \sim b\}\), as subsets of \(U_A \times U_B\).
+    Tracing the first projection \(1_U \otimes^\Sh ! : U \otimes^\Sh U \to U \otimes^\Sh \mathbf{1}\)
+    through the chain of isomorphisms, we see that it becomes the map \((a,b) \mapsto a\)
+    from \(\{(a,b) : U \times U \mid a \sim b\}\) to \(U\).
+    Similarly for the second projection.
+    The canonical map \(U \otimes^\Sh U \to U \times U\) is the product of these,
+    so it becomes the inclusion \(\{(a,b) : U \times U \mid a \sim b\} \hookrightarrow U \times U\),
+    as required.
 \end{proof}
 
 \section{Future Work}
