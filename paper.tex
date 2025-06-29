@@ -1,7 +1,7 @@
 \documentclass{article}
 
-\usepackage[style=alphabetic]{biblatex}
-\addbibresource{paper.bib}
+% \usepackage[style=alphabetic]{biblatex}
+% \addbibresource{paper.bib}
 
 % https://ncatlab.org/nlab/show/Yoneda+embedding#ReferencesNotation
 \usepackage[utf8]{inputenc}
@@ -16,6 +16,7 @@
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{construction}[theorem]{Construction}
 \newtheorem{example}[theorem]{Example}
 
@@ -281,6 +282,102 @@ Hence this next theorem.
     as required.
 \end{proof}
 
+\section{Backwards}
+
+TODO: Trying to make the main theorem an iff statement
+TODO: This entire section will need to be rewritten once the proof works.
+POSSIBILITY: Make the proof a chain of iffs. That way, there's a non-classifying characterization of topos models as well as a classifying one.
+% culminating in a beautiful characterization in terms of classifying toposes.
+
+Consider any model of \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) in the classifying topos over \(\T\).
+
+TODO: Translate properties of the type theory to properties of the topos. E.g. \(*\) affine monoidal product...
+
+Let \(U\) be the generic \(\T\)-model in \(\Set[\T]\).
+
+\begin{lemma}
+    For any \(A \in \Set[\T]\), the data \(A * -, \Pi^*_A\) is determined by the subset \(A * U \subseteq A \times U\).
+\end{lemma}
+
+\begin{proof}
+    Observe that TODO form a geometric morphism \(\Set[\T]_{/A} \to \Set[\T]\).
+    Each such geometric morphism yields a \(\T\)-model in \(\Set[\T]_{/A}\),
+    given by the restriction of the obvious model \(\substack{A \times U \\ \downarrow \\ A}\) to \(\substack{A * U \\ \downarrow \\ A}\).
+\end{proof}
+
+\begin{corollary}
+    The monoidal structure is determined by \(U * U\).
+\end{corollary}
+
+\begin{proof}
+    Reduce from \(A*B\) to \(A*U\), then to \(U*U\).
+\end{proof}
+
+Next, we relate the classifying topos back to the syntactic category.
+
+\begin{lemma}
+    If an object of \(\Set[\T]\) is the interpretation of some context \(A \in \C_\T\) in the generic model,
+    then every subobject is the interpretation of some restriction \((\vec{a} : A, \phi(\vec{a}))\).
+    The choice of \(\phi\) is unique up to logical equivalence.
+\end{lemma}
+
+\begin{proof}
+    Writing \(\Omega\) for the subobject classifier of \(\Set[\T]\), we have:
+    \begin{align*}
+        &\mathrm{Sub}(\mathbf{a}\yo A)
+        \\ &= \mathbf{a}\yo A \to \Omega
+        \\ &= \hom_{\Sh(\C_\T)}(\mathbf{a}\yo A, \Omega)
+        \\ &= \hom_{\Psh(\C_\T)}(\yo A, i\Omega)
+        \\ &= \Omega A
+    \end{align*}
+    This is the collection of covering-closed sieves on \(A\) in the syntactic category.
+
+    A sieve has the required form when it contains exactly those morphisms that factor through the inclusion of \((\vec{a}:A,\phi(a))\) into \(A\).
+    Uniqueness is immediate; if \(\phi_1\) and \(\phi_2\) are both solutions,
+    then the inclusions of \((\vec{a}:A,\phi_1(a,b))\) and \((\vec{a}:A,\phi_2(a,b))\) factor through each other, producing a bi-implication.
+
+    As for existince, fix any sieve \(S\).
+    Every morphism it contains factors through the inclusion for the following choice of \(\phi\).
+    \[\phi(\vec{a}) = \bigvee_{(B \in \C_\T, f : \hom_{\C_\T}(B, A)) \in S} \exists \vec{b} : B, f(\vec{b},\vec{a})\]
+    And conversely, this inclusion is covered by the sieve, so covering-closedness ensures it it in the sieve.
+\end{proof}
+
+\begin{corollary}
+    A geometric sequent \(\vec{a} : A \vdash \phi(\vec{a})\) is provable if it holds in the generic model.
+\end{corollary}
+
+\begin{proof}
+    Uniqueness, from the above lemma, shows that \(\phi\) and \(\top\) are logically equivalent.
+\end{proof}
+
+\begin{corollary}
+    A morphism in \(\Set[\T]\) is the interpretation of one in the generic model if its domain and codomain are.
+\end{corollary}
+
+\begin{proof}
+    A morphism in \(\Set[\T]\) induces a provably functional relation.
+    Both the relation and the proof of functionality are interpretations of the same in the syntactic category.
+    This yields the data required to produce a morphism in \(\C_\T\).
+\end{proof}
+
+\begin{theorem}
+    \(U * U\) is the interpretation of a unique geometrically-definable relation \((\sim) : X \times X \to \Prop\).
+    This relation satisfies the assumptions of the main theorem.
+\end{theorem}
+
+\begin{proof}
+    \(U * U\) is a subobject of \(U \times U\), which interprets \(X \times X\).
+    So \(U \times U\) is the interpretation of some context \((a:X,b:X,a\sim b)\).
+
+    It remains to show that \((\sim)\) is symmetric,
+    and that \(\{a : X \mid a \sim x\}\) is a sub-\(\T\)-model of \(X\) for any \(x : X\).
+
+    By the above lemma and its corollaries, it suffices to show that \((a,b) \in U*U \Leftrightarrow (b,a) \in (U*U)\),
+    and that \(\{a : U \mid a \sim x\}\) is a sub-\(\T\)-model of \(U\) for any \(x : U\).
+
+    The former is immediate. The latter holds because the geometric morphism TODO induces a \(\T\)-model in \(\Set[\T]_{/A}\).
+\end{proof}
+
 \section{Future Work}
 
 The purpose of this paper is to \emph{enable} future work.
@@ -305,6 +402,6 @@ Furthermore, it appears that \cite{schopp}'s type theories are not the end of th
 based both on their comments in section 13 and the existence of many competing approaches in the literature.
 As new and better type theories are designed, it will be valuable to have a quick way to know when they apply.
 
-\printbibliography
+% \printbibliography
 
 \end{document}
