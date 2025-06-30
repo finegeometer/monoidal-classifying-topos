@@ -1,7 +1,7 @@
 \documentclass{article}
 
-% \usepackage[style=alphabetic]{biblatex}
-% \addbibresource{paper.bib}
+\usepackage[style=alphabetic]{biblatex}
+\addbibresource{paper.bib}
 
 % https://ncatlab.org/nlab/show/Yoneda+embedding#ReferencesNotation
 \usepackage[utf8]{inputenc}
@@ -13,6 +13,9 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{mathpartir}
+\usepackage{quiver}
+
+\usepackage{todonotes}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -45,8 +48,10 @@
 
 \begin{abstract}
     In their PhD thesis, Sch\"opp introduces a type theory designed to capture the monoidal structure in the Schanuel topos.
-    I provide a simple condition that can be used to verify whether the type theory interprets into a classifying topos of your choice.
+    I provide a strikingly simple characterization of the models of this type theory in arbitrary classifying toposes.
 \end{abstract}
+
+\listoftodos
 
 \section{Intro}
 
@@ -57,25 +62,54 @@ To capture an additional monoidal structure on the topos,
 \cite{schopp} extends the type theory to a system they call \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\).
 While that paper is specific to the Schanuel topos, the type theory described within is applicable to many others.
 
-I provide an easy method to verify that \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\)
-can be interpreted in a classifying topos of your choice,
-so you can start \emph{using} the internal language as quickly as possible.
+I characterize the models of \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) in an arbitrary classifying topos.
+This characterization is extremely easy to use; describing a topos model typically becomes a single-paragraph task.
+
+For simplicity, I describe only the case of single-sorted type theories.
+While both the theorem and proof extend naturally to multi-sort theories,
+the notation becomes more awkward in that case.
 
 \section{Main Theorem}
 
-For simplicity of exposition, I describe the theorem and proof in the case of single-sorted theories.
-The extension to multiple sorts is straightforward, but terminologically awkward.
+Recall from \cite{schopp}, section 3.5 and chapter 6, that topos models of the theories
+\(\mathbf{BT}(1, \Sigma, \Pi, \Pi^*)\), \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\), or \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*, B^{*(M:A)})\)
+come from toposes equipped with \emph{strict affine symmetric monoidal closed structures that preserve pullback}.
+That is, symmetric monoidal structures \((*,I)\) where:
+\begin{itemize}
+    \item \(I\) is terminal.
+    \item The canonical map \(A * B \to A \times B\) is mono.
+    \item The functor \(A * -\) preserves pullbacks, and has a right adjoint.
+\end{itemize}
+
+I characterize these structures in classifying toposes.
 
 \begin{theorem}
     Let \(\T\) be a single-sorted geometric theory, with sort \(X\).
-    Let \((\sim) : X \to X \to \Prop\) be a geometrically-defined symmetric relation.
-    Further suppose that for any \(x \in X\), \(\{a : X \mid a \sim x\}\) is a sub-\(\T\)-model of \(X\).
-    Then \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) interprets into \(\Set[\T]\).
+    Monoidal structures on topos \(\Set[\T]\) of the above form 
+    are given by symmetric relations \((\sim) : X \to X \to \Prop\),
+    satisfying the following property.
+    \begin{quote}
+        For any \(x : X\), the \(\T\)-model structure on \(X\)
+        restricts to a sub-\(\T\)-model on \(\{a : X \mid a \sim x\}\).
+    \end{quote}
+
+    Under this interpretation, if \(U\) is the generic \(\T\)-model,
+    we will have \(U*U = \{(a,b) : U \times U \mid a \sim b\}\).
 \end{theorem}
 
-For example, let \(\T\) be the theory of rings, and let \(a \sim b\) mean \(ab = ba\).
-The hypothesis holds because centralizers of rings are rings;
-so we get an interpretation of the bunched type theory into \(\Set[\Ring]\).
+\noindent For example, to interpret the type theory into \(\Set[\Ring]\), let \(a \sim b\) mean \(ab = ba\).
+We need only check that \(\{a : R \mid ax = xa\}\) is a ring for any \(x\), and this holds by standard ring theory.
+The monoidal product of the generic ring with itself will be the set of commuting pairs of ring elements.
+
+% \begin{theorem}
+%     Let \((\sim) : X \to X \to \Prop\) be a symmetric relation, geometrically defined in the language of the theory.
+%     Further suppose that for any \(x \in X\), \(\{a : X \mid a \sim x\}\) is a sub-\(\T\)-model of \(X\).
+%     Then \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) interprets into \(\Set[\T]\).
+% \end{theorem}
+
+% For example, if \(\T\) is the theory of rings, let \(a \sim b\) mean \(ab = ba\).
+% The hypothesis holds because centralizers of rings are rings,
+% so we get an interpretation of the bunched type theory into \(\Set[\Ring]\).
 
 \subsection{Details} \label{Details}
 
@@ -94,16 +128,37 @@ I mean the following:
     \end{itemize}
 \end{itemize}
 
-As an example of the latter, say \(\T\) is the theory of inhabited sets, with axiom \(\vdash \exists a : X, \top\).
+As an example of the latter condition, say \(\T\) is the theory of inhabited sets, with axiom \(\vdash \exists a : X, \top\).
 Then the required sequent is \(x : X \vdash \exists a : X, a \sim x \land \top\).
 
 \section{Proof of Main Theorem}
 
-For the duration of this section, we accept the assumptions of the main theorem.
+\subsection{Notation}
 
-\vspace{1em}
+We use the following notation.
+\begin{itemize}
+    \item \(\T\) will be a single-sorted geometric theory, with sort \(X\).
+    \item \(\C_\T\) will be the syntactic site of \(\T\).
+    \item \(\Psh(\C_\T)\) and \(\Sh(\C_\T)\) are the categories of presheaves and sheaves on the syntactic site.
+    The latter is the classifying topos of \(\T\), so we also call it \(\Set[\T]\).
+    \item We have the following diagram of functors:
+    % https://q.uiver.app/#q=WzAsMyxbMCwwLCJcXENfXFxUIl0sWzIsMCwiXFxQc2goXFxDX1xcVCkiXSxbNCwwLCJcXFNoKFxcQ19cXFQpID0gXFxTZXRbXFxUXSJdLFswLDEsIlxceW8iXSxbMSwyLCJcXG1hdGhiZnthfSIsMCx7Im9mZnNldCI6LTJ9XSxbMiwxLCJpIiwwLHsib2Zmc2V0IjotMn1dLFs0LDUsIiIsMCx7ImxldmVsIjoxLCJzdHlsZSI6eyJuYW1lIjoiYWRqdW5jdGlvbiJ9fV1d
+    \[\begin{tikzcd}
+        {\C_\T} && {\Psh(\C_\T)} && {\Sh(\C_\T) = \Set[\T]}
+        \arrow["\yo", from=1-1, to=1-3]
+        \arrow[""{name=0, anchor=center, inner sep=0}, "{\mathbf{a}}", shift left=2, from=1-3, to=1-5]
+        \arrow[""{name=1, anchor=center, inner sep=0}, "i", shift left=2, from=1-5, to=1-3]
+        \arrow["\dashv"{anchor=center, rotate=-90}, draw=none, from=0, to=1]
+    \end{tikzcd}\]
+    \(\yo\) is the Yoneda embedding, \(\mathbf{a}\) is sheafification, and \(i\) is the inclusion of presheaves into sheaves.
+    The composite functor \(\mathbf{a} \circ \yo\) interprets the syntax of the theory into the generic model.
+    \item \(U = \mathbf{a}\yo(x:X)\) is the interpretation of the \(\T\)'s sort in the generic model.
+\end{itemize}
 
-\noindent To begin, notice a key detail of the transformation described above.
+\subsection{Forwards Direction}
+
+For the duration of this section, let \((\sim) : X \to X \to \Prop\) be a relation satisfying the property described in the main theorem.
+
 \begin{lemma} \label{transform-lemma}
     The transformation of sequents described in section \ref{Details},
     used there to transform the axioms of \(\T\), preserves derivability.
@@ -132,7 +187,6 @@ For the duration of this section, we accept the assumptions of the main theorem.
     Both of which are immediate; the first because we've already proven \(\Gamma' \vdash t \sim x\).
 \end{proof}
 
-Next, bootstrap to the syntactic site.
 \begin{construction}
     We place a monoidal structure on \(\T\)'s syntactic category.
 \end{construction}
@@ -164,7 +218,7 @@ Next, bootstrap to the syntactic site.
 
     We've defined \(f * 1_B\). The definition of \(1_A * g\) is analogous.
     All of the functoriality laws, including the interchange condition \((f * 1) \circ (1 * g) = (1 * g) \circ (f * 1)\),
-    follow from relating \(f * 1_B\) back to \(f \times 1_B\), and using the bifunctoriality of the cartesian product.
+    follow from relating \(f * 1_B\) back to \(f \times 1_B\), and using the functoriality of the cartesian product.
 \end{proof}
 
 \begin{lemma}\leavevmode
@@ -206,10 +260,8 @@ Next, bootstrap to the syntactic site.
     \end{enumerate}
 \end{proof}
 
-Lift to the classifying topos.
-
 \begin{construction} \label{sh}
-    We equip \(\Set[\T]\) with a strictly affine symmetric monoidal closed structure \((*,\wand)\).
+    We equip \(\Set[\T]\) with a pullback-preserving strict affine symmetric monoidal closed structure.
 \end{construction}
 
 \begin{proof}
@@ -235,34 +287,16 @@ Lift to the classifying topos.
     This map is exactly what you'd expect it to be; it composes the \(c \xrightarrow{C} c_1 * c_2\) component
     with the canonical map \(c_1 * c_2 \xrightarrow{C} c_1 \times c_2\), and leaves everything else alone.
     Since that canonical map is mono, this is too.
+
+    \todo{Missing condition: Pullback preservation. I'm not sure how to prove this, or if I need to change the theorem statement to make it work.}
 \end{proof}
-
-And finally:
-
-\begin{construction}
-    We have an interpretation of \(\Set[\T]\) into \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\).
-\end{construction}
-
-\begin{proof}
-    Apply section 3.5 of \cite{schopp} to see that \(\Set[\T]\) is a ``\((*, 1, \Sigma, \Pi, \Pi^*)\)-type-category'',
-    then apply Chapter 6 of the same to construct the interpretation.
-\end{proof}
-
-\section{Using the Monoidal Structure}
-
-For practical use, the main theorem isn't quite enough.
-You'll need to know not just that \(*\)-types exist, but how they work.
-If \(R\) is the generic local ring, you'll want to know that \(R * R = \{(a,b) : R^2 \mid ab = ba\}\).
-
-Hence this next theorem.
 
 \begin{theorem}
     Let \(U\) be the generic \(\T\)-model in \(\Set[\T]\).
-    Then \(U * U = \{(a,b) : U \times U \mid a \sim b\}\), as subsets of \(U \times U\).
+    Then \(U \otimes^\Sh U = \{(a,b) : U \times U \mid a \sim b\}\), as subsets of \(U \times U\).
 \end{theorem}
 
 \begin{proof}
-    Viewing \(\Set[\T]\) as \(\Sh(\C_\T)\), expand.
     \begin{align*}
         U \otimes^\Sh U
         &\simeq \mathbf{a}\yo(x:X) \otimes^\Sh \mathbf{a}\yo(x:X)
@@ -282,26 +316,30 @@ Hence this next theorem.
     as required.
 \end{proof}
 
-\section{Backwards}
+\subsection{Backwards Direction}
 
-TODO: Trying to make the main theorem an iff statement
-TODO: This entire section will need to be rewritten once the proof works.
-POSSIBILITY: Make the proof a chain of iffs. That way, there's a non-classifying characterization of topos models as well as a classifying one.
-% culminating in a beautiful characterization in terms of classifying toposes.
-
-Consider any model of \(\mathbf{BT}(*, 1, \Sigma, \Pi, \Pi^*)\) in the classifying topos over \(\T\).
-
-TODO: Translate properties of the type theory to properties of the topos. E.g. \(*\) affine monoidal product...
-
-Let \(U\) be the generic \(\T\)-model in \(\Set[\T]\).
+Consider any pullback-preserving strict affine symmetric monoidal structure on \(\Set[\T]\).
 
 \begin{lemma}
-    For any \(A \in \Set[\T]\), the data \(A * -, \Pi^*_A\) is determined by the subset \(A * U \subseteq A \times U\).
+    For any \(A \in \Set[\T]\), there is a geometric morphism \(W_A \dashv \Pi^*_A : \Set[\T]_{/A} \leftrightarrows \Set[\T]\),
+    whose composition with \(\Sigma_A \dashv A^* : \Set[\T] \leftrightarrows \Set[\T]_{/A}\)
+    yields the adjunction \((A * -) \dashv (A \wand -)\).
 \end{lemma}
 
 \begin{proof}
-    Observe that TODO form a geometric morphism \(\Set[\T]_{/A} \to \Set[\T]\).
-    Each such geometric morphism yields a \(\T\)-model in \(\Set[\T]_{/A}\),
+    Following the construction in section 2.5.1 of \cite{schopp}, we define:
+    \begin{align*}
+        W_A(B) &= \substack{A * B \\ \downarrow \\ A}
+        \\ \Pi^*_A\left(\substack{B \\ \enspace \downarrow f \\ A}\right) &= \text{Pullback of } (A \wand B \xrightarrow{A \wand f} A \wand A \xleftarrow{id} 1)
+    \end{align*}
+\end{proof}
+
+\begin{corollary}
+    For any \(A \in \Set[\T]\), the functor \(A * -\) is determined by \(A * U\).
+\end{corollary}
+
+\begin{proof}
+    The above geometric morphism corresponds to a \(\T\)-model in \(\Set[\T]_{/A}\),
     given by the restriction of the obvious model \(\substack{A \times U \\ \downarrow \\ A}\) to \(\substack{A * U \\ \downarrow \\ A}\).
 \end{proof}
 
@@ -375,7 +413,7 @@ Next, we relate the classifying topos back to the syntactic category.
     By the above lemma and its corollaries, it suffices to show that \((a,b) \in U*U \Leftrightarrow (b,a) \in (U*U)\),
     and that \(\{a : U \mid a \sim x\}\) is a sub-\(\T\)-model of \(U\) for any \(x : U\).
 
-    The former is immediate. The latter holds because the geometric morphism TODO induces a \(\T\)-model in \(\Set[\T]_{/A}\).
+    The former is immediate. The latter holds because the geometric morphism \(W_U \dashv \Pi^*_U\) induces a \(\T\)-model in \(\Set[\T]_{/U}\).
 \end{proof}
 
 \section{Future Work}
@@ -402,6 +440,6 @@ Furthermore, it appears that \cite{schopp}'s type theories are not the end of th
 based both on their comments in section 13 and the existence of many competing approaches in the literature.
 As new and better type theories are designed, it will be valuable to have a quick way to know when they apply.
 
-% \printbibliography
+\printbibliography
 
 \end{document}
